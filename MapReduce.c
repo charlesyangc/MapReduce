@@ -10,7 +10,8 @@ void readfile(){
 }
 
 void loadfiles(){
-	printf("loadfiles \n");
+	// refer to https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
+	printf("===================================================================  loadfiles \n");
 	struct dirent *de;  // Pointer for directory entry 
   
     // opendir() returns a pointer of DIR type.  
@@ -24,8 +25,21 @@ void loadfiles(){
 
 	// Refer http://pubs.opengroup.org/onlinepubs/7990989775/xsh/readdir.html 
     // for readdir() 
-    while ((de = readdir(dr)) != NULL) 
-            printf("%s\n", de->d_name); 
+    int len;
+    char * last_four; 
+    while ((de = readdir(dr)) != NULL){
+    	// printf("%s\n", de->d_name); 
+    	
+    	// only use file with ".txt" extension
+    	len = strlen(de->d_name);
+    	if (len > 4){ //length of file name should be larger than 4 (".txt")
+	    	last_four = &de->d_name[len-4];
+	    	if ( (!strcmp(last_four, ".txt")) || (!strcmp(last_four, ".TXT")) ){
+	    		printf("%s\n", de->d_name);
+	    		// push this file to work queue
+	    	}
+	    }
+    }
   
     closedir(dr);     
 }
