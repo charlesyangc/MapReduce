@@ -5,6 +5,8 @@
 #include <dirent.h> 
 #include <string.h>
 
+#include "concurrentqueue-master/concurrentqueue.h"
+
 void readfile(){
 
 }
@@ -60,6 +62,12 @@ int main (int argc, char *argv[]) {
    int i;
    double elapsed;
    elapsed = omp_get_wtime();
+
+   // master thread initialize a concurrent work queue
+   // refer to https://github.com/cameron314/concurrentqueue
+   #pragma omp parallel
+   {
+   }
 
    // load all files from target directory
    loadfiles();
