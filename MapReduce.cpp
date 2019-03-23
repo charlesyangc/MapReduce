@@ -5,8 +5,6 @@
 #include <unistd.h>
 #include <dirent.h> 
 #include <string.h>
-#include <vector>
-#include <iostream>
 
 #include "concurrentqueue-master/concurrentqueue.h"
 
@@ -18,8 +16,7 @@ void readfile(){
 
 }
 
-void loadfiles() {
-
+void loadfiles(){
 	// refer to https://www.geeksforgeeks.org/c-program-list-files-sub-directories-directory/
 	printf("===================================================================  loadfiles \n");
 	struct dirent *de;  // Pointer for directory entry 
@@ -47,7 +44,6 @@ void loadfiles() {
 	    	last_four = &de->d_name[len-4];
 	    	if ( (!strcmp(last_four, ".txt")) || (!strcmp(last_four, ".TXT")) ){
 	    		// printf("%s\n", de->d_name);
-	    		printf("%s\n", de->d_name);
 	    		// push this file to work queue
           input_file_queue.enqueue(de->d_name);
           num_files++;
