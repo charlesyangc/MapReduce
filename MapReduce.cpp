@@ -7,6 +7,7 @@
 #include <string.h>
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include "concurrentqueue-master/concurrentqueue.h"
 
@@ -22,9 +23,14 @@ void readfile(char fileName){
 		std::cout << "Fail to open the file: " << fileName << std::endl;
 		return 0;
 	}
-	// Read word from file
+
+	// Read word by word from the file
 	std::string word;
 	while (file >> word) {
+		// remove punctuations in each word phrase
+		word.erase(std::remove_if(word.begin(), word.end(), [](unsigned char c) { return std::ispunct(c);}), word.end());
+
+		// print each word
 		std::cout << word << std::endl;
 	}
 

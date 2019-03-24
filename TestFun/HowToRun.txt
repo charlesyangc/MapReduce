@@ -1,3 +1,4 @@
-g++ -std=c++0x TestFun.cpp -o TestFun
+g++ -std=c++11 TestFun.cpp -o TestFun
+  // older version does not support this
 
 ./TestFun
