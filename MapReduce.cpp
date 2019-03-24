@@ -8,6 +8,8 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <map>
+#include <iterator>
 
 #include "concurrentqueue-master/concurrentqueue.h"
 
@@ -16,6 +18,9 @@ moodycamel::ConcurrentQueue<char *> inter_file_queue[16];
 
 
 void readfile(char fileName){
+	// Store word count in map type
+	std::map<std::string, int> WordCount;
+
 	// Open file
 	std::ifstream file;
 	file.open((std::string)"./RawText/" + (std::string)fileName);
@@ -30,8 +35,20 @@ void readfile(char fileName){
 		// remove punctuations in each word phrase
 		word.erase(std::remove_if(word.begin(), word.end(), [](unsigned char c) { return std::ispunct(c);}), word.end());
 
+		// Count the number of each word locally
+		++WordCount[word];
+
 		// print each word
 		std::cout << word << std::endl;
+	}
+
+	// Print the word count from map type
+	std::map<std::string, int>::iterator itr;
+	std::cout << "\nThe map WordCount is : \n";
+	std::cout << "\tWord\tCount\n";
+	for (itr = WordCount.begin(); itr != WordCount.end(); ++itr) {
+		std::cout << '\t' << itr->first
+			<< '\t' << itr->second << '\n';
 	}
 
 	// Close file
