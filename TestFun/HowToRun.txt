@@ -1,0 +1,3 @@
+g++ -std=c++0x TestFun.cpp -o TestFun
+
+./TestFun

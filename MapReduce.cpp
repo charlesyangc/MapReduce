@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <dirent.h> 
 #include <string.h>
+#include <iostream>
+#include <fstream>
 
 #include "concurrentqueue-master/concurrentqueue.h"
 
@@ -12,8 +14,22 @@ moodycamel::ConcurrentQueue<char *> input_file_queue;
 moodycamel::ConcurrentQueue<char *> inter_file_queue[16];
 
 
-void readfile(){
+void readfile(char fileName){
+	// Open file
+	std::ifstream file;
+	file.open((std::string)"./RawText/" + (std::string)fileName);
+	if (!file.is_open()) {
+		std::cout << "Fail to open the file: " << fileName << std::endl;
+		return 0;
+	}
+	// Read word from file
+	std::string word;
+	while (file >> word) {
+		std::cout << word << std::endl;
+	}
 
+	// Close file
+	file.close();
 }
 
 void loadfiles(){
@@ -96,6 +112,10 @@ int main (int argc, char *argv[]) {
 
    // open MP version
     elapsed = omp_get_wtime();
+
+	// 2 threads for testing
+	omp_set_num_threads(2);
+
     // lead files and map
     int flag_loading_file_finished = 0;
     int num_files = 0;
@@ -118,6 +138,7 @@ int main (int argc, char *argv[]) {
           printf("if found = %d \n", found);
           for (i = 0; i < strlen(file_name); i++){
             printf("%c",file_name[i]);
+			readfile(file_name[i]);
           }
           printf("\n");
         }
@@ -125,7 +146,7 @@ int main (int argc, char *argv[]) {
     }
     printf("num_files = %d \n", num_files);
     // reduce
-   elapsed = omp_get_wtime() - elapsed;
+    elapsed = omp_get_wtime() - elapsed;
 
 
    // MPI version
