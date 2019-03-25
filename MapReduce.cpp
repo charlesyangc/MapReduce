@@ -200,9 +200,9 @@ int main (int argc, char *argv[]) {
           printf("if found = %d \n", found);
           for (i = 0; i < strlen(file_name); i++){
             printf("%c",file_name[i]);
-			readfile(file_name);
           }
           printf("\n");
+		  readfile(file_name);
         }
       }
     }
