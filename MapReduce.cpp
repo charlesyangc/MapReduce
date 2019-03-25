@@ -17,7 +17,7 @@ moodycamel::ConcurrentQueue<char *> input_file_queue;
 moodycamel::ConcurrentQueue<char *> inter_file_queue[16];
 
 
-void readfile(char fileName){
+void readfile(char * fileName){
 	// Store word count in map type
 	std::map<std::string, int> WordCount;
 
@@ -26,7 +26,7 @@ void readfile(char fileName){
 	file.open((std::string)"./RawText/" + (std::string)fileName);
 	if (!file.is_open()) {
 		std::cout << "Fail to open the file: " << fileName << std::endl;
-		return 0;
+		return;
 	}
 
 	// Read word by word from the file
@@ -200,7 +200,7 @@ int main (int argc, char *argv[]) {
           printf("if found = %d \n", found);
           for (i = 0; i < strlen(file_name); i++){
             printf("%c",file_name[i]);
-			readfile(file_name[i]);
+			readfile(file_name);
           }
           printf("\n");
         }
