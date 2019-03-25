@@ -81,7 +81,7 @@ int HashMap(std::string& word, int num_reducer) {
 	int AssignedReducer = 0;
 
 	try {
-		char FirstLetter = word.at(1);
+		char FirstLetter = word.at(0);
 		AssignedReducer = (int)(FreqFirstLetter.at(FirstLetter) * num_reducer);
 	}
 	catch (...) { // assign other cases to the last reducer
