@@ -166,10 +166,40 @@ int java_hashCode(const char *str) {
     return hash;
 }
 
-void reduce_function(){
-  // std::string file_name
-  // bool found = inter_file_queue[reducer_id].try_dequeue(file_name);
-  // if (found == 1) means this file is found
+void reduce_function(int reducer_id){
+	std::string newWord, Count_newWord;
+
+	// Store word count in map type
+	std::map<std::string, int> WordCount;
+
+    // dequeue the file name
+	std::string file_name;
+	while (inter_file_queue[reducer_id].try_dequeue(file_name) == 1) {
+		// Open file
+		std::ifstream file;
+		file.open(file_name);
+		if (!file.is_open()) {
+			std::cout << "Fail to open the file: " << fileName << std::endl;
+			return;
+		}
+
+		// read new word and its count from file 
+		file >> newWord;
+		file >> Count_newWord;
+
+		// add up the counts
+		WordCount[word] += std::stoi(Count_newWord);
+	}
+
+	// store the count in a file named after the 
+	std::map<std::string, int>::iterator itr;
+	std::ofstream ofs;
+	std::string Output_fileName = "Output from reducer" + (std::string) reducer_id + ".txt";
+	ofs.open(Output_fileName, std::ofstream::out | std::ofstream::trunc);
+	for (itr = WordCount.begin(); itr != WordCount.end(); ++itr)
+		ofs << itr->first << '\t' << itr->second << '\n';
+	ofs.close();
+
 }
 
 int main (int argc, char *argv[]) {
