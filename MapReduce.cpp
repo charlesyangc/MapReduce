@@ -1,6 +1,6 @@
 #include <omp.h>
 // #include <mpi.h>
-#include <stdio.h>
+// #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <dirent.h> 
@@ -8,6 +8,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <cstdio>
 #include <map>
 #include <iterator>
 
@@ -179,7 +180,7 @@ void reduce_function(int reducer_id){
 		std::ifstream file;
 		file.open(file_name);
 		if (!file.is_open()) {
-			std::cout << "Fail to open the file: " << fileName << std::endl;
+			std::cout << "Fail to open the file: " << file_name << std::endl;
 			return;
 		}
 
@@ -188,17 +189,18 @@ void reduce_function(int reducer_id){
 		file >> Count_newWord;
 
 		// add up the counts
-		WordCount[word] += std::stoi(Count_newWord);
+		WordCount[newWord] += std::stoi(Count_newWord);
 
 		// delete the temperary file
 		file.close();
-		std::remove(file_name);
+    const char * c = file_name.c_str();
+		std::remove(c);
 	}
 
 	// store the count in a file named after the reducer id
 	std::map<std::string, int>::iterator itr;
 	std::ofstream ofs;
-	std::string Output_fileName = "Output from reducer" + (std::string) reducer_id + ".txt";
+	std::string Output_fileName = "Output from reducer" + std::to_string( reducer_id )+ ".txt";
 	ofs.open(Output_fileName, std::ofstream::out | std::ofstream::trunc);
 	for (itr = WordCount.begin(); itr != WordCount.end(); ++itr)
 		ofs << itr->first << '\t' << itr->second << '\n';
