@@ -16,6 +16,13 @@
 moodycamel::ConcurrentQueue<char *> input_file_queue;
 moodycamel::ConcurrentQueue<char *> inter_file_queue[16];
 
+void printcharpointer(char * a){
+  int i;
+  for (i = 0; i < strlen(a); i++){
+    printf("%c",a[i]);
+  }
+  printf("\n");
+}
 
 void readfile(char * fileName){
 	// Store word count in map type
@@ -42,17 +49,17 @@ void readfile(char * fileName){
 		++WordCount[word];
 
 		// print each word
-		std::cout << word << std::endl;
+		// std::cout << word << std::endl;
 	}
 
 	// Print the word count from map type
-	std::map<std::string, int>::iterator itr;
-	std::cout << "\nThe map WordCount is : \n";
-	std::cout << "\tWord\tCount\n";
-	for (itr = WordCount.begin(); itr != WordCount.end(); ++itr) {
-		std::cout << '\t' << itr->first
-			<< '\t' << itr->second << '\n';
-	}
+	// std::map<std::string, int>::iterator itr;
+	// std::cout << "\nThe map WordCount is : \n";
+	// std::cout << "\tWord\tCount\n";
+	// for (itr = WordCount.begin(); itr != WordCount.end(); ++itr) {
+	// 	std::cout << '\t' << itr->first
+	// 		<< '\t' << itr->second << '\n';
+	// }
 
 	// Close file
 	file.close();
@@ -172,43 +179,50 @@ int main (int argc, char *argv[]) {
     // printf("found = %d \n", found);
 
 
-   // open MP version
-    elapsed = omp_get_wtime();
+  // open MP version
+  elapsed = omp_get_wtime();
 
 	// 2 threads for testing
-	omp_set_num_threads(2);
+	omp_set_num_threads(3);
 
-    // lead files and map
-    int flag_loading_file_finished = 0;
-    int num_files = 0;
-    #pragma omp parallel
+  // lead files and map
+  int flag_loading_file_finished = 0;
+  int num_files = 0;
+  #pragma omp parallel
+  {
+    printf("get number of thread %d, thread rank: %d\n", omp_get_num_threads(), omp_get_thread_num());
+    #pragma omp master
     {
-      printf("get number of thread %d, thread rank: %d\n", omp_get_num_threads(), omp_get_thread_num());
-      #pragma omp master
-      {
-        printf("master thread is %d \n", omp_get_thread_num());
-        // master thread load file
-        loadfiles();
-        flag_loading_file_finished = 1;
-      }
-      // other thread read file
-      while(flag_loading_file_finished == 0){
-        char * file_name;
-        bool found = input_file_queue.try_dequeue(file_name);
+      printf("master thread is %d \n", omp_get_thread_num());
+      // master thread load file
+      loadfiles();
+      flag_loading_file_finished = 1;
+    }
+    // other thread read file
+    if (omp_get_thread_num() != 0){
+      char * file_name;
+      bool found;
+      printf("read thread rank: %d\n", omp_get_thread_num());
+      do{
+        found = input_file_queue.try_dequeue(file_name);
         if (found == 1){
           num_files++;
-          printf("if found = %d \n", found);
-          for (i = 0; i < strlen(file_name); i++){
-            printf("%c",file_name[i]);
-          }
-          printf("\n");
-		  readfile(file_name);
+          printf("if found = %d, thread is %d \n", found, omp_get_thread_num());
+          printcharpointer(file_name);
+          readfile(file_name);
         }
+      }while(flag_loading_file_finished == 0);
+      while (input_file_queue.try_dequeue(file_name) == 1){
+        num_files++;
+        printf("if found = %d, thread is %d \n", found, omp_get_thread_num());
+        printcharpointer(file_name);
+        readfile(file_name);
       }
     }
-    printf("num_files = %d \n", num_files);
-    // reduce
-    elapsed = omp_get_wtime() - elapsed;
+  }
+  printf("num_files = %d \n", num_files);
+  // reduce
+  elapsed = omp_get_wtime() - elapsed;
 
 
    // MPI version
