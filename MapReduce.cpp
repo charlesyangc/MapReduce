@@ -14,8 +14,10 @@
 
 #include "concurrentqueue-master/concurrentqueue.h"
 
+#define NUM_THREADS 10
+
 moodycamel::ConcurrentQueue<char *> input_file_queue;
-moodycamel::ConcurrentQueue<std::string> inter_file_queue[3];
+moodycamel::ConcurrentQueue<std::string> inter_file_queue[NUM_THREADS];
 
 void printcharpointer(char * a){
   int i;
@@ -101,7 +103,7 @@ void readfile(char * fileName){
     ofs.open (inter_file_name, std::ofstream::out | std::ofstream::trunc);
     ofs << itr->first << '\t' << itr->second << '\n';
     ofs.close();
-    reducer_id = HashMap(inter_file_name, 3);
+    reducer_id = HashMap(inter_file_name, NUM_THREADS);
     inter_file_queue[reducer_id].enqueue(inter_file_name);
   }
   // Print the word count from map type
@@ -189,6 +191,7 @@ void reduce_function(int reducer_id){
 		file >> Count_newWord;
 
 		// add up the counts
+    //std::cout << Count_newWord;
 		WordCount[newWord] += std::stoi(Count_newWord);
 
 		// delete the temperary file
@@ -203,7 +206,7 @@ void reduce_function(int reducer_id){
 	std::string Output_fileName = "Output from reducer" + std::to_string( reducer_id )+ ".txt";
 	ofs.open(Output_fileName, std::ofstream::out | std::ofstream::trunc);
 	for (itr = WordCount.begin(); itr != WordCount.end(); ++itr)
-		ofs << itr->first << '\t' << itr->second << '\n';
+		ofs << itr->first << ' ' << itr->second << '\n';
 	ofs.close();
 
 }
@@ -231,7 +234,7 @@ int main (int argc, char *argv[]) {
   elapsed = omp_get_wtime();
 
 	// 2 threads for testing
-	omp_set_num_threads(3);
+	omp_set_num_threads(NUM_THREADS);
 
   // lead files and map
   int flag_loading_file_finished = 0;
