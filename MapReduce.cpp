@@ -189,9 +189,13 @@ void reduce_function(int reducer_id){
 
 		// add up the counts
 		WordCount[word] += std::stoi(Count_newWord);
+
+		// delete the temperary file
+		file.close();
+		std::remove(file_name);
 	}
 
-	// store the count in a file named after the 
+	// store the count in a file named after the reducer id
 	std::map<std::string, int>::iterator itr;
 	std::ofstream ofs;
 	std::string Output_fileName = "Output from reducer" + (std::string) reducer_id + ".txt";
@@ -263,7 +267,11 @@ int main (int argc, char *argv[]) {
     }
   }
   printf("num_files = %d \n", num_files);
+
   // reduce
+#pragma omp parallel
+  reduce_function(omp_get_thread_num());
+
   elapsed = omp_get_wtime() - elapsed;
 
 
