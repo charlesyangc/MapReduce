@@ -16,8 +16,15 @@
 
 #define NUM_THREADS 7
 
+struct wordcounttuple
+{
+  std::string word;
+  int count; 
+};
+
 moodycamel::ConcurrentQueue<char *> input_file_queue;
-moodycamel::ConcurrentQueue<std::string> inter_file_queue[NUM_THREADS];
+// moodycamel::ConcurrentQueue<std::string> inter_file_queue[NUM_THREADS];
+moodycamel::ConcurrentQueue<wordcounttuple> inter_file_queue[NUM_THREADS];
 
 void printcharpointer(char * a){
   int i;
@@ -94,18 +101,31 @@ void readfile(char * fileName){
 	}
 
   // output intermediate scratch file
-	std::map<std::string, int>::iterator itr;
-  std::ofstream ofs;
-  std::string inter_file_name;
+	// std::map<std::string, int>::iterator itr;
+ //  std::ofstream ofs;
+ //  std::string inter_file_name;
+ //  int reducer_id;
+ //  for (itr = WordCount.begin(); itr != WordCount.end(); ++itr) {
+ //    inter_file_name = fileName + itr->first;
+ //    ofs.open (inter_file_name, std::ofstream::out | std::ofstream::trunc);
+ //    ofs << itr->first << ' ' << itr->second << '\n';
+ //    ofs.close();
+ //    reducer_id = HashMap(itr->first, NUM_THREADS);
+ //    inter_file_queue[reducer_id].enqueue(inter_file_name);
+ //  }
+
+  // ver.2
+  std::map<std::string, int>::iterator itr;
+  wordcounttuple workcount;
   int reducer_id;
   for (itr = WordCount.begin(); itr != WordCount.end(); ++itr) {
-    inter_file_name = fileName + itr->first;
-    ofs.open (inter_file_name, std::ofstream::out | std::ofstream::trunc);
-    ofs << itr->first << ' ' << itr->second << '\n';
-    ofs.close();
     reducer_id = HashMap(itr->first, NUM_THREADS);
-    inter_file_queue[reducer_id].enqueue(inter_file_name);
-  }
+    workcount.word = itr->first;
+    workcount.count = itr->second;
+    inter_file_queue[reducer_id].enqueue(workcount);
+  }  
+
+
   // Print the word count from map type
 	// std::cout << "\nThe map WordCount is : \n";
 	// std::cout << "\tWord\tCount\n";
@@ -147,16 +167,16 @@ void sequential_readfile(char * fileName){
   }
 
   // output intermediate scratch file
-  std::map<std::string, int>::iterator itr;
-  std::ofstream ofs;
-  std::string inter_file_name;
-  for (itr = WordCount.begin(); itr != WordCount.end(); ++itr) {
-    inter_file_name = fileName + itr->first;
-    ofs.open (inter_file_name, std::ofstream::out | std::ofstream::trunc);
-    ofs << itr->first << ' ' << itr->second << '\n';
-    ofs.close();
-    inter_file_queue[0].enqueue(inter_file_name);
-  }
+  // std::map<std::string, int>::iterator itr;
+  // std::ofstream ofs;
+  // std::string inter_file_name;
+  // for (itr = WordCount.begin(); itr != WordCount.end(); ++itr) {
+  //   inter_file_name = fileName + itr->first;
+  //   ofs.open (inter_file_name, std::ofstream::out | std::ofstream::trunc);
+  //   ofs << itr->first << ' ' << itr->second << '\n';
+  //   ofs.close();
+  //   inter_file_queue[0].enqueue(inter_file_name);
+  // }
 
   // Close file
   file.close();
@@ -221,35 +241,42 @@ void reduce_function(int reducer_id){
 	std::map<std::string, int> WordCount;
 
     // dequeue the file name
-	std::string file_name;
-	while (inter_file_queue[reducer_id].try_dequeue(file_name) == 1) {
-		// Open file
-		std::ifstream file;
-		file.open(file_name);
-		if (!file.is_open()) {
-			std::cout << "Fail to open the file: " << file_name << std::endl;
-			return;
-		}
+	// std::string file_name;
+	// while (inter_file_queue[reducer_id].try_dequeue(file_name) == 1) {
+	// 	// Open file
+	// 	std::ifstream file;
+	// 	file.open(file_name);
+	// 	if (!file.is_open()) {
+	// 		std::cout << "Fail to open the file: " << file_name << std::endl;
+	// 		return;
+	// 	}
 
-		// read new word and its count from file 
-		file >> newWord;
-		file >> Count_newWord;
+	// 	// read new word and its count from file 
+	// 	file >> newWord;
+	// 	file >> Count_newWord;
 
-		// add up the counts
-    // std::cout << "in reduce_function" << std::endl;
-    // std::cout << newWord << std::endl;
-    if (Count_newWord.length()>0){
-      int counts = std::stoi(Count_newWord, nullptr);
-      WordCount[newWord] += counts;
-      // if (reducer_id == 0)
-      //   std::cout << newWord << WordCount[newWord] << std::endl;
-    }
+	// 	// add up the counts
+ //    // std::cout << "in reduce_function" << std::endl;
+ //    // std::cout << newWord << std::endl;
+ //    if (Count_newWord.length()>0){
+ //      int counts = std::stoi(Count_newWord, nullptr);
+ //      WordCount[newWord] += counts;
+ //      // if (reducer_id == 0)
+ //      //   std::cout << newWord << WordCount[newWord] << std::endl;
+ //    }
 
-		// delete the temperary file
-		file.close();
-    const char * c = file_name.c_str();
-		std::remove(c);
-	}
+	// 	// delete the temperary file
+	// 	file.close();
+ //    const char * c = file_name.c_str();
+	// 	std::remove(c);
+	// }
+
+  wordcounttuple wordcount;
+  while (inter_file_queue[reducer_id].try_dequeue(wordcount) == 1) {
+    WordCount[wordcount.word] += wordcount.count;
+  }
+
+
 
 	// store the count in a file named after the reducer id
 	std::map<std::string, int>::iterator itr;
