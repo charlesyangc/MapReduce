@@ -1,0 +1,46 @@
+master thread is 0 
+===================================================================  loadfiles 
+if found = 1, read thread is 6 
+if found = 1, read thread is 2 
+if found = 1, read thread is 1 
+if found = 1, read thread is 3 
+3in loadfiles, num_files = 17 
+2638.txt.utf-8.txt
+if found = 1, read thread is 4 
+if found = 1, read thread is 5 
+39998294.txt.u2t963.929t6.txx7t.utf-8.t.t6f.xt
+-8.00.txt.utf-8.txt
+txt
+txt.utf-8.txt
+utf-8.txt
+if found = 1, read thread is 5 
+39293-0.txt
+if found = 1, read thread is 3 
+39295.txt.utf-8.txt
+if found = 1, read thread is 6 
+36034.txt.utf-8.txt
+if found = 1, read thread is 1 
+27916.txt.utf-8.txt
+if found = 1, read thread is 4 
+2554.txt.utf-8.txt
+if found = 1, read thread is 3 
+39290-0.txt
+if found = 1, read thread is 1 
+2600.txt.utf-8.txt
+if found = 1, read thread is 2 
+39288.txt.utf-8.txt
+if found = 1, read thread is 5 
+3183.txt.utf-8.txt
+if found = 1, read thread is 3 
+1399.txt.utf-8.txt
+if found = 1, read thread is 5 
+34114.txt.utf-8.txt
+number of files read is 17 
+in reduce_function, reducer_id = 0 
+in reduce_function, reducer_id = 4 
+in reduce_function, reducer_id = 2 
+in reduce_function, reducer_id = 5 
+in reduce_function, reducer_id = 1 
+in reduce_function, reducer_id = 6 
+in reduce_function, reducer_id = 3 
+elapsed is 265 
