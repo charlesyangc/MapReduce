@@ -14,7 +14,7 @@
 
 #include "concurrentqueue-master/concurrentqueue.h"
 
-#define NUM_THREADS 10
+#define NUM_THREADS 7
 
 moodycamel::ConcurrentQueue<char *> input_file_queue;
 moodycamel::ConcurrentQueue<std::string> inter_file_queue[NUM_THREADS];
@@ -46,7 +46,7 @@ std::map<char, float> FreqFirstLetter = {
         { 'z', 1.0000 } };
 
 // Map word to reducer based on its first letter, return the index of reducer 0 : num_reducer-1
-int HashMap(std::string& word, int num_reducer) {
+int HashMap(std::string word, int num_reducer) {
 
   int AssignedReducer = 0;
 
@@ -101,9 +101,9 @@ void readfile(char * fileName){
   for (itr = WordCount.begin(); itr != WordCount.end(); ++itr) {
     inter_file_name = fileName + itr->first;
     ofs.open (inter_file_name, std::ofstream::out | std::ofstream::trunc);
-    ofs << itr->first << '\t' << itr->second << '\n';
+    ofs << itr->first << ' ' << itr->second << '\n';
     ofs.close();
-    reducer_id = HashMap(inter_file_name, NUM_THREADS);
+    reducer_id = HashMap(itr->first, NUM_THREADS);
     inter_file_queue[reducer_id].enqueue(inter_file_name);
   }
   // Print the word count from map type
@@ -170,6 +170,7 @@ int java_hashCode(const char *str) {
 }
 
 void reduce_function(int reducer_id){
+  printf("in reduce_function, reducer_id = %d \n", reducer_id);
 	std::string newWord, Count_newWord;
 
 	// Store word count in map type
@@ -191,8 +192,14 @@ void reduce_function(int reducer_id){
 		file >> Count_newWord;
 
 		// add up the counts
-    //std::cout << Count_newWord;
-		WordCount[newWord] += std::stoi(Count_newWord);
+    // std::cout << "in reduce_function" << std::endl;
+    // std::cout << newWord << std::endl;
+    if (Count_newWord.length()>0){
+      int counts = std::stoi(Count_newWord, nullptr);
+      WordCount[newWord] += counts;
+      // if (reducer_id == 0)
+      //   std::cout << newWord << WordCount[newWord] << std::endl;
+    }
 
 		// delete the temperary file
 		file.close();
@@ -203,7 +210,7 @@ void reduce_function(int reducer_id){
 	// store the count in a file named after the reducer id
 	std::map<std::string, int>::iterator itr;
 	std::ofstream ofs;
-	std::string Output_fileName = "Output from reducer" + std::to_string( reducer_id )+ ".txt";
+	std::string Output_fileName = "Output_from_reducer" + std::to_string( reducer_id )+ ".txt";
 	ofs.open(Output_fileName, std::ofstream::out | std::ofstream::trunc);
 	for (itr = WordCount.begin(); itr != WordCount.end(); ++itr)
 		ofs << itr->first << ' ' << itr->second << '\n';
@@ -241,7 +248,6 @@ int main (int argc, char *argv[]) {
   int num_files = 0;
   #pragma omp parallel
   {
-    printf("get number of thread %d, thread rank: %d\n", omp_get_num_threads(), omp_get_thread_num());
     #pragma omp master
     {
       printf("master thread is %d \n", omp_get_thread_num());
@@ -253,29 +259,30 @@ int main (int argc, char *argv[]) {
     if (omp_get_thread_num() != 0){
       char * file_name;
       bool found;
-      printf("read thread rank: %d\n", omp_get_thread_num());
       do{
         found = input_file_queue.try_dequeue(file_name);
         if (found == 1){
           num_files++;
-          printf("if found = %d, thread is %d \n", found, omp_get_thread_num());
+          printf("if found = %d, read thread is %d \n", found, omp_get_thread_num());
           printcharpointer(file_name);
           readfile(file_name);
         }
       }while(flag_loading_file_finished == 0);
       while (input_file_queue.try_dequeue(file_name) == 1){
         num_files++;
-        printf("if found = %d, thread is %d \n", found, omp_get_thread_num());
+        printf("if found = %d, read thread is %d \n", found, omp_get_thread_num());
         printcharpointer(file_name);
         readfile(file_name);
       }
     }
   }
-  printf("num_files = %d \n", num_files);
+  printf("number of files read is %d \n", num_files);
 
   // reduce
-#pragma omp parallel
-  reduce_function(omp_get_thread_num());
+  #pragma omp parallel
+  {
+    reduce_function(omp_get_thread_num());
+  }
 
   elapsed = omp_get_wtime() - elapsed;
 
