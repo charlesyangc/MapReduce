@@ -358,7 +358,7 @@ int main (int argc, char *argv[]) {
     }
 
     elapsed = omp_get_wtime() - elapsed;
-    printf("elapsed is %.f \n", elapsed);
+    printf("elapsed time is %.10f s\n", elapsed);
   }
   else{
     // sequential version

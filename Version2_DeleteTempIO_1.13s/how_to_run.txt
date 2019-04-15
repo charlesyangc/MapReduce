@@ -3,4 +3,4 @@ how to compile:
 	// mpiicpc -std=c++11 MapReduce.cpp -o MapReduce
 
 how to submit:
-	qsub -l walltime=00:00:20 ./MapReduce.sub
+	qsub -l walltime=00:00:10 ./MapReduce.sub

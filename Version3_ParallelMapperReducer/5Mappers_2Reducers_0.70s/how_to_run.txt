@@ -1,0 +1,6 @@
+how to compile:
+	g++ -std=c++11 -fopenmp MapReduce_v3.cpp -o MapReduce
+	// mpiicpc -std=c++11 MapReduce_v3.cpp -o MapReduce
+
+how to submit:
+	qsub -l walltime=00:00:10 ./MapReduce.sub

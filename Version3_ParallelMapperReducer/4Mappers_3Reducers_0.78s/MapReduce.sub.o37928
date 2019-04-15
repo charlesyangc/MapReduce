@@ -1,0 +1,25 @@
+master thread is 0 
+===================================================================  loadfiles 
+in loadfiles, num_files = 17 
+in reduce_function, reducer_id = 0 
+in reduce_function, reducer_id = 2 
+in reduce_function, reducer_id = 1 
+Thread Thread Thread Thread 2 is reading file: 139294.txt.utf-8.txt0 is reading file:  is reading file: 39297.txt.utf-8.txt2638.txt.utf-8.txt3 is reading file: 39296.txt.utf-8.txt
+
+
+
+Thread 1 is reading file: 986.txt.utf-8.txt
+Thread 3 is reading file: 600.txt.utf-8.txt
+Thread 2 is reading file: 39293-0.txt
+Thread 1 is reading file: 39295.txt.utf-8.txt
+Thread 3 is reading file: 36034.txt.utf-8.txt
+Thread 1 is reading file: 27916.txt.utf-8.txt
+Thread 1 is reading file: 2554.txt.utf-8.txt
+Thread 2 is reading file: 39290-0.txt
+Thread 0 is reading file: 2600.txt.utf-8.txt
+Thread 2 is reading file: 39288.txt.utf-8.txt
+Thread 3 is reading file: 3183.txt.utf-8.txt
+Thread 3 is reading file: 1399.txt.utf-8.txt
+Thread 2 is reading file: 34114.txt.utf-8.txt
+number of files read is 16 
+elapsed time is 0.7825449379 s
