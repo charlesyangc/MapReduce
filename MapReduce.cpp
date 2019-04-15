@@ -14,7 +14,7 @@
 
 #include "concurrentqueue-master/concurrentqueue.h"
 
-#define NUM_THREADS 7
+#define NUM_THREADS 4
 
 struct wordcounttuple
 {
@@ -23,6 +23,7 @@ struct wordcounttuple
 };
 
 moodycamel::ConcurrentQueue<char *> input_file_queue;
+// moodycamel::ConcurrentQueue<std::string> input_file_queue;
 // moodycamel::ConcurrentQueue<std::string> inter_file_queue[NUM_THREADS];
 moodycamel::ConcurrentQueue<wordcounttuple> inter_file_queue[NUM_THREADS];
 
@@ -136,50 +137,6 @@ void readfile(char * fileName){
 
 	// Close file
 	file.close();
-}
-
-void sequential_readfile(char * fileName){
-  // Store word count in map type
-  std::map<std::string, int> WordCount;
-
-  // Open file
-  std::ifstream file;
-  file.open((std::string)"./RawText/" + (std::string)fileName);
-  if (!file.is_open()) {
-    std::cout << "Fail to open the file: " << fileName << std::endl;
-    return;
-  }
-
-  // Read word by word from the file
-  std::string word;
-  while (file >> word) {
-    // remove punctuations in each word phrase
-    word.erase(std::remove_if(word.begin(), word.end(), [](unsigned char c) { return std::ispunct(c);}), word.end());
-    
-    // Convert upper case to lower case
-    std::transform(word.begin(), word.end(), word.begin(), ::tolower);
-
-    // Count the number of each word locally
-    ++WordCount[word];
-
-    // print each word
-    // std::cout << word << std::endl;
-  }
-
-  // output intermediate scratch file
-  // std::map<std::string, int>::iterator itr;
-  // std::ofstream ofs;
-  // std::string inter_file_name;
-  // for (itr = WordCount.begin(); itr != WordCount.end(); ++itr) {
-  //   inter_file_name = fileName + itr->first;
-  //   ofs.open (inter_file_name, std::ofstream::out | std::ofstream::trunc);
-  //   ofs << itr->first << ' ' << itr->second << '\n';
-  //   ofs.close();
-  //   inter_file_queue[0].enqueue(inter_file_name);
-  // }
-
-  // Close file
-  file.close();
 }
 
 void loadfiles(){
@@ -307,9 +264,6 @@ int main (int argc, char *argv[]) {
     // bool found = q.try_dequeue(test);
     // printf("found = %d \n", found);
 
-   int flag_parallel = 1;
-
-   if (flag_parallel == 1){
     // open MP version
     elapsed = omp_get_wtime();
 
@@ -358,18 +312,7 @@ int main (int argc, char *argv[]) {
     }
 
     elapsed = omp_get_wtime() - elapsed;
-    printf("elapsed is %.f \n", elapsed);
-  }
-  else{
-    // sequential version
-    loadfiles();
-    char * file_name;
-    while (input_file_queue.try_dequeue(file_name) == 1){
-      printcharpointer(file_name);
-      sequential_readfile(file_name);
-    }
-    reduce_function(0);
-  }
+    printf("elapsed is %.10f \n", elapsed);
 
 
    // MPI version
